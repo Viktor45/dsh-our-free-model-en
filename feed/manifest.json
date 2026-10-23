@@ -1,7 +1,7 @@
 {
   "version": "2.6.0",
   "base": "../",
-  "publishedAt": "2026-10-23T23:28:56.092Z",
+  "publishedAt": "2026-10-23T23:39:24.619Z",
   "notes": "Fork 自有发布通道：升级与公告源改指 Viktor45/dsh-our-free-model-en，清单由本 Fork 的 Ed25519 私钥签名（上游与本 Fork 是互不接受的信任根）；桌面端与独立服务的用户可见文案统一为英文。",
   "files": [
     {
@@ -410,5 +410,5 @@
       "sha256": "6419471effa631519def7797d76d7ede38b9fcfa9a83c2148c8ef5d43355b43d"
     }
   ],
-  "signature": "yFwICmMAGCRYzRpsUJ18ukG+EXjlddpx27dwCgkqs+TyvKsBA4d74t9yyoZ2Bf8v1xE0uGWAqdmoKx2be3DyBw=="
+  "signature": "8cpJjMesiaxYjiiCLO6gIO9jRJJtYaYcmHHOCd61nKAQhbpXtfS/Gy/99Dcef6DQUZwmDsgnNZBqC/XZAJPkBQ=="
 }
