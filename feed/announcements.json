@@ -2,6 +2,18 @@
   "$schema": "./announcements.schema.md",
   "announcements": [
     {
+      "id": "2026-10-24-v2.6.0-fork-channel",
+      "title": "v2.6.0：Fork 自有发布通道与全英文界面",
+      "level": "update",
+      "pinned": true,
+      "createdAt": "2026-10-24T00:00:00Z",
+      "link": {
+        "url": "https://github.com/Viktor45/dsh-our-free-model-en/releases/tag/v2.6.0",
+        "label": "查看版本说明"
+      },
+      "html": "<p><b>2.6.0 是本 Fork 的首个自有发布版本。</b>应用内升级与公告 feed 现在指向 <code>Viktor45/dsh-our-free-model-en</code>，清单由本 Fork 自己的 Ed25519 私钥签名，因此上游与本 Fork 是两个互不接受的信任根——升级到上游版本需要换回上游的插件包。桌面端与独立服务的用户可见文案统一为英文；公告、评论与文档仍按原语言保留。本版本不发布新的 Windows 桌面安装包，独立服务与桌面壳版本保持不变。</p>"
+    },
+    {
       "id": "2026-10-22-v2.5.9-plugin-release",
       "title": "v2.5.9：精简账号渠道、清理遗留资源并同步交流群信息",
       "level": "update",

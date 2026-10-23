@@ -24,10 +24,10 @@ export async function openLoginTerminal(dataDir, {
     // 命令行只包含固定脚本和配置路径；令牌只经 stdin 传给 pbcopy。
     const command = [
       `if ${shellQuote(execPath)} -e ${shellQuote(copy)} ${shellQuote(keyFile)} 2>/dev/null; then`,
-      `  printf '%s\\n' ${shellQuote('登录令牌已复制。回到网页，粘贴到登录令牌输入框即可。')}`,
-      `  printf '%s\\n' ${shellQuote('完成后可以关闭此窗口，请勿向他人分享令牌。')}`,
+      `  printf '%s\\n' ${shellQuote('Login token copied. Go back to the page and paste it into the login token field.')}`,
+      `  printf '%s\\n' ${shellQuote('You can close this window when done; never share the token with anyone.')}`,
       'else',
-      `  printf '%s\\n' ${shellQuote('获取令牌失败，请检查本地 settings.json 或使用页面的手动入口。')}`,
+      `  printf '%s\\n' ${shellQuote('Could not read the token; check the local settings.json or use the page\'s manual entry.')}`,
       'fi',
     ].join('\n')
     const script = [
@@ -42,20 +42,20 @@ export async function openLoginTerminal(dataDir, {
     return
   }
   if (platform !== 'win32') {
-    throw Object.assign(new Error('自动打开终端仅支持 Windows 和 macOS，请按页面说明手动获取令牌。'), { statusCode: 400 })
+    throw Object.assign(new Error('Opening a terminal automatically works on Windows and macOS only; follow the page instructions to get the token by hand.'), { statusCode: 400 })
   }
   const powershell = path.win32.join(systemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe')
   const command = [
-    "$Host.UI.RawUI.WindowTitle = 'Our Free Model - 获取登录令牌'",
+    "$Host.UI.RawUI.WindowTitle = 'Our Free Model - Login token'",
     "$ErrorActionPreference = 'Stop'",
     'try {',
     `  $ofmLoginKey = (Get-Content -LiteralPath ${quote(keyFile)} -Raw -Encoding UTF8 | ConvertFrom-Json).forwardKey`,
-    "  if ([string]::IsNullOrWhiteSpace($ofmLoginKey)) { throw '配置文件没有登录令牌' }",
+    "  if ([string]::IsNullOrWhiteSpace($ofmLoginKey)) { throw 'The settings file has no login token' }",
     '  Set-Clipboard -Value $ofmLoginKey',
     '  $ofmLoginKey = $null',
-    "  Write-Host '登录令牌已复制。回到网页，粘贴到登录令牌输入框即可。' -ForegroundColor Green",
-    "  Write-Host '完成后可以关闭此窗口，请勿向他人分享令牌。'",
-    "} catch { Write-Host '获取令牌失败，请检查本地 settings.json 或使用页面的手动入口。' -ForegroundColor Red }",
+    "  Write-Host 'Login token copied. Go back to the page and paste it into the login token field.' -ForegroundColor Green",
+    "  Write-Host 'You can close this window when done; never share the token with anyone.'",
+    "} catch { Write-Host 'Could not read the token; check the local settings.json or use the page\'s manual entry.' -ForegroundColor Red }",
   ].join('\n')
   const launch = `Start-Process -FilePath ${quote(powershell)} -WindowStyle Normal -ArgumentList '-NoProfile -STA -NoExit -EncodedCommand ${encode(command)}' -ErrorAction Stop`
   await exec(powershell, ['-NoProfile', '-NonInteractive', '-EncodedCommand', encode(launch)], {

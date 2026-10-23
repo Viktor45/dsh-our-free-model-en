@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -273,7 +273,7 @@
   <div class="progress-track">
     <div class="progress-bar"></div>
   </div>
-  <div class="status" id="status">正在初始化...</div>
+  <div class="status" id="status">Initializing...</div>
 </div>
 
 <script>
@@ -299,8 +299,8 @@ if (theme === 'dark') {
 // 模拟进度状态
 const statusEl = document.getElementById('status');
 const messages = theme === 'dark'
-  ? ['正在初始化...', '校准信号...', '连接本地服务...', '就绪']
-  : ['正在初始化...', '加载模块...', '连接本地服务...', '就绪'];
+  ? ['Initializing...', 'Calibrating signal...', 'Connecting to the local service...', 'Ready']
+  : ['Initializing...', 'Loading modules...', 'Connecting to the local service...', 'Ready'];
 
 let step = 0;
 const interval = setInterval(() => {

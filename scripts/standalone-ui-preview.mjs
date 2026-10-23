@@ -27,7 +27,7 @@ const upstream = http.createServer(async (req, res) => {
   for await (const chunk of req) chunks.push(chunk)
   const pathname = new URL(req.url, 'http://localhost').pathname
   if (pathname.endsWith('/auth/status')) {
-    json(res, { configured: true, required: true, authorized: false, repo: 'Ebony-Vinyl/dsh-our-free-model' })
+    json(res, { configured: true, required: true, authorized: false, repo: 'Viktor45/dsh-our-free-model-en' })
   } else if (pathname.endsWith('/pool')) {
     json(res, { ok: true, inflight: 3, pool: 100, active24h: 5, poolSource: 'configured' })
   } else if (pathname.endsWith('/models')) {

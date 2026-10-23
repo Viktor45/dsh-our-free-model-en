@@ -205,7 +205,8 @@ const standaloneSummary = { settings: { enabled: true, hiddenModelIds: [], hideF
   catalog: [{ id: 'free', name: 'Free', channel: 'anonymous', routable: true }, { id: 'account', name: 'Account', channel: 'lobsterai', routable: true }] }
 const savedPatches = []
 const context = {
-  ...react, h: react.createElement, Fragment: 'fragment', providers: [], filterModels, visibilityCopy,
+  ...react, h: react.createElement, Fragment: 'fragment', providers: [], sharedProviders: [], providerLabel: provider => provider,
+  filterModels, visibilityCopy,
   document: { documentElement: { lang: 'en' } },
   defaultRangeExtractor: () => [],
   useVirtualizer: ({ count }) => ({ getTotalSize: () => count * 112,
@@ -227,7 +228,7 @@ const standaloneProps = { active: true, summary: standaloneSummary, host: {
   refresh: async () => {}, error: error => { throw error },
 } }
 let standaloneTree = render(context.Page, standaloneProps)
-nodes(standaloneTree).find(node => node.props['aria-label'] === 'Hide model：free').props.onClick()
+nodes(standaloneTree).find(node => node.props['aria-label'] === 'Hide model: free').props.onClick()
 await new Promise(resolve => setImmediate(resolve))
 assert.deepEqual(savedPatches.pop(), { hiddenModelIds: ['free'] })
 standaloneTree = render(context.Page, standaloneProps)
@@ -236,13 +237,13 @@ group.props.onChange({ target: { checked: true } })
 await new Promise(resolve => setImmediate(resolve))
 assert.deepEqual(savedPatches.pop(), { hideFreeModels: true })
 standaloneTree = render(context.Page, standaloneProps)
-assert.equal(nodes(standaloneTree).find(node => node.props['aria-label'] === 'Show model：free').props.disabled, true)
-assert.equal(nodes(standaloneTree).some(node => /(?:Hide|Show) model：account/.test(node.props['aria-label'] ?? '')), false)
+assert.equal(nodes(standaloneTree).find(node => node.props['aria-label'] === 'Show model: free').props.disabled, true)
+assert.equal(nodes(standaloneTree).some(node => /(?:Hide|Show) model: account/.test(node.props['aria-label'] ?? '')), false)
 nodes(standaloneTree).find(node => node.type === 'input' && node.props.role === 'switch').props.onChange({ target: { checked: false } })
 await new Promise(resolve => setImmediate(resolve))
 assert.deepEqual(Array.from(standaloneSummary.settings.hiddenModelIds), ['free'], 'group restore preserves individual choices')
 standaloneTree = render(context.Page, standaloneProps)
-nodes(standaloneTree).find(node => node.props['aria-label'] === 'Show model：free').props.onClick()
+nodes(standaloneTree).find(node => node.props['aria-label'] === 'Show model: free').props.onClick()
 await new Promise(resolve => setImmediate(resolve))
 assert.deepEqual(savedPatches.pop(), { hiddenModelIds: [] })
 console.log('ok  standalone actual model-row and group controls save preferences and isolate account channels')

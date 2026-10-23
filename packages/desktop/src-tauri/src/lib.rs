@@ -34,7 +34,7 @@ fn start_service(app: &tauri::AppHandle) -> Result<String, String> {
     let resources = if cfg!(debug_assertions) {
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("resources")
     } else {
-        app.path().resource_dir().map_err(|_| "无法定位安装资源")?
+        app.path().resource_dir().map_err(|_| "Cannot locate the installation resources")?
     };
     let node = if cfg!(target_os = "windows") {
         resources.join("runtime/node.exe")
@@ -43,21 +43,21 @@ fn start_service(app: &tauri::AppHandle) -> Result<String, String> {
     };
     let host = resources.join("service/packages/desktop/service-host.mjs");
     if !node.is_file() || !host.is_file() {
-        return Err("安装资源不完整，请重新安装桌面程序".into());
+        return Err("Installation resources are incomplete; please reinstall the desktop application".into());
     }
     let data_dir = std::env::var_os("OFM_HOME")
         .map(std::path::PathBuf::from)
         .or_else(|| dirs::home_dir().map(|home| home.join(".our-free-model")))
-        .ok_or("无法确定服务数据目录")?;
+        .ok_or("Cannot determine the service data directory")?;
     let state = app.state::<ServiceState>();
     // 与退出共用锁：退出必须等正在启动的子进程完成交接后再清理。
-    let mut guard = state.process.lock().map_err(|_| "服务状态不可用")?;
+    let mut guard = state.process.lock().map_err(|_| "Service state is unavailable")?;
     if state.stopping.load(Ordering::SeqCst) {
-        return Err("应用正在退出".into());
+        return Err("The application is shutting down".into());
     }
     let process = ServiceProcess::start(&node, &host, &data_dir)?;
     if state.stopping.load(Ordering::SeqCst) {
-        return Err("应用正在退出".into());
+        return Err("The application is shutting down".into());
     }
     let address = process.management_url.clone();
     *guard = Some(process);
@@ -75,7 +75,7 @@ fn stop_service(app: &tauri::AppHandle) {
 }
 
 fn show_main(app: &tauri::AppHandle, address: &str) -> tauri::Result<()> {
-    let url: tauri::Url = address.parse().expect("服务握手已校验 URL");
+    let url: tauri::Url = address.parse().expect("service handshake already validated the URL");
     let origin = url.origin().ascii_serialization();
     let mut capability = CapabilityBuilder::new("desktop-service-window")
         .window("main")
@@ -132,11 +132,11 @@ pub fn run() {
                 .title("Our Free Model").inner_size(400.0, 300.0).center()
                 .resizable(false).decorations(false).always_on_top(true).skip_taskbar(true)
                 .build()?;
-            let show = MenuItem::with_id(app, "show", "打开面板", true, None::<&str>)?;
-            let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
+            let show = MenuItem::with_id(app, "show", "Open Panel", true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show, &quit])?;
             TrayIconBuilder::new()
-                .icon(app.default_window_icon().expect("已配置应用图标").clone())
+                .icon(app.default_window_icon().expect("app icon configured").clone())
                 .menu(&menu).tooltip("Our Free Model")
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => show_existing(app), "quit" => app.exit(0), _ => {}
@@ -158,12 +158,12 @@ pub fn run() {
                 let _ = handle.run_on_main_thread(move || {
                 let handle = window_handle;
                 if handle.state::<ServiceState>().stopping.load(Ordering::SeqCst) { return; }
-                let result = result.and_then(|address| show_main(&handle, &address).map_err(|_| "无法打开管理窗口".into()));
+                let result = result.and_then(|address| show_main(&handle, &address).map_err(|_| "Cannot open the management window".into()));
                 if let Err(message) = result {
                     stop_service(&handle);
                     let message = serde_json::to_string(&message).unwrap();
                     let _ = WebviewWindowBuilder::new(&handle, "main", WebviewUrl::App("error.html".into()))
-                        .title("Our Free Model — 启动失败").inner_size(620.0, 300.0).center()
+                        .title("Our Free Model — Startup Failed").inner_size(620.0, 300.0).center()
                         .initialization_script(format!("document.addEventListener('DOMContentLoaded',()=>{{document.getElementById('reason').textContent={message};}})"))
                         .build();
                 }
@@ -177,7 +177,7 @@ pub fn run() {
                 if window.label() == "main" { api.prevent_close(); let _ = window.hide(); }
             }
         })
-        .build(tauri::generate_context!()).expect("无法构建桌面应用")
+        .build(tauri::generate_context!()).expect("failed to build the desktop application")
         .run(|app, event| {
             if matches!(event, tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit) {
                 app.state::<ServiceState>().stopping.store(true, Ordering::SeqCst);

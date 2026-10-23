@@ -8,16 +8,16 @@ export function createCredentials(dataDir) {
   let values = {}
   if (fs.existsSync(file)) {
     const loaded = JSON.parse(fs.readFileSync(file, 'utf8'))
-    if (!loaded || typeof loaded !== 'object' || Array.isArray(loaded)) throw new Error('独立凭据文件格式错误')
+    if (!loaded || typeof loaded !== 'object' || Array.isArray(loaded)) throw new Error('The standalone credential file is malformed')
     values = loaded
   }
   let closed = false
   const key = ref => {
-    if (typeof ref !== 'string' || !/^[A-Za-z0-9_.-]{1,200}$/.test(ref)) throw new TypeError('凭据引用无效')
+    if (typeof ref !== 'string' || !/^[A-Za-z0-9_.-]{1,200}$/.test(ref)) throw new TypeError('The credential reference is invalid')
     return ref
   }
   const save = next => {
-    if (closed) throw new Error('凭据仓库已停止')
+    if (closed) throw new Error('The credential store has stopped')
     const temp = `${file}.${process.pid}.${crypto.randomBytes(8).toString('hex')}.tmp`
     try {
       fs.writeFileSync(temp, JSON.stringify(next, null, 2), { mode: 0o600, flag: 'wx' })
@@ -32,7 +32,7 @@ export function createCredentials(dataDir) {
     },
     async describe(ref) { return { source: typeof values[key(ref)] === 'string' ? 'local' : undefined } },
     async set(ref, value) {
-      if (typeof value !== 'string') throw new TypeError('凭据必须为字符串')
+      if (typeof value !== 'string') throw new TypeError('The credential must be a string')
       save({ ...values, [key(ref)]: value })
     },
     async unset(ref) {

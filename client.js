@@ -431,6 +431,7 @@ window.__ModuleLoader__.load({
         'chan.login.expired': '等待超时，请重新发起登录。',
         'chan.login.done': '已接入：{login}',
         'chan.login.failed': '登录未完成：{reason}',
+        'chan.login.unknown': '未知原因',
         'chan.test.ok': '连接正常（{ms} ms）',
         'chan.test.failed': '测试失败：{reason}',
         'chan.claim.result': '已领取 {count} 个账号，共 {credit} 积分。',
@@ -1128,6 +1129,7 @@ window.__ModuleLoader__.load({
         'chan.login.expired': 'Timed out — please start the sign-in again.',
         'chan.login.done': 'Connected: {login}',
         'chan.login.failed': 'Sign-in did not complete: {reason}',
+        'chan.login.unknown': 'unknown cause',
         'chan.test.ok': 'Connection healthy ({ms} ms)',
         'chan.test.failed': 'Test failed: {reason}',
         'chan.claim.result': 'Claimed for {count} account(s), {credit} credits in total.',
@@ -2472,6 +2474,12 @@ window.__ModuleLoader__.load({
       return zh ? `${Math.round(hours / 24)} 天前` : `${Math.round(hours / 24)}d ago`
     }
 
+    // List separator follows the active language: a Chinese list reads wrong with
+    // an ASCII comma and an English one reads wrong with a full-width comma.
+    function listJoin(values, locale) {
+      return values.join(String(locale ?? '').toLowerCase().startsWith('zh') ? '；' : '; ')
+    }
+
     function copy(text, done) {
       const finish = ok => done(ok)
       if (navigator?.clipboard?.writeText !== undefined) {
@@ -3019,7 +3027,7 @@ window.__ModuleLoader__.load({
     // saturation, so the panel and the server can never disagree about the
     // color. The panel renders nothing at all when the host has no lane or the
     // gateway is dark — a gauge that lies would be worse than no gauge.
-    const POOL_REPO_URL = 'https://github.com/Ebony-Vinyl/dsh-our-free-model'
+    const POOL_REPO_URL = 'https://github.com/Viktor45/dsh-our-free-model-en'
     const FISH_PATH = 'M1 7c2.5-3.5 7-5 11-3.2L18.5 1v12L12 10.2C8 12 3.5 10.5 1 7zm16.4 0l5.1-3.4v6.8L17.4 7zM8.4 5.6a1 1 0 11-2 0 1 1 0 012 0z'
 
     /**
@@ -3284,7 +3292,7 @@ window.__ModuleLoader__.load({
 
       if (auth === undefined) return h('p', { className: 'ofm_note' }, t('loading'))
       if (auth.available !== true) return h('p', { className: 'ofm_note' }, t('eac.noLane'))
-      const repo = auth.repo !== undefined && auth.repo !== '' ? auth.repo : 'Ebony-Vinyl/dsh-our-free-model'
+      const repo = auth.repo !== undefined && auth.repo !== '' ? auth.repo : 'Viktor45/dsh-our-free-model-en'
       return h(Fragment, null,
         h('div', { className: 'ofm_row' },
           auth.authorized === true
@@ -3910,7 +3918,7 @@ window.__ModuleLoader__.load({
           data?.available === true ? h(Button, { kind: 'primary', disabled: managed || status.status !== 'ready' || phase !== '' || data.applying === true || data.recoveryRequired === true, onClick: applyUpgrade }, !managed && phase === 'applying' ? t('upgrade.applying') : t('upgrade.apply')) : null,
           h('a', {
             className: 'ofm_btn ofm_starlink',
-            href: 'https://github.com/Ebony-Vinyl/dsh-our-free-model',
+            href: 'https://github.com/Viktor45/dsh-our-free-model-en',
             target: '_blank',
             rel: 'noopener noreferrer',
           }, h('span', { 'aria-hidden': 'true' }, '\u2606'), t('upgrade.star'))),
@@ -4432,7 +4440,7 @@ window.__ModuleLoader__.load({
             if (value?.done === true) {
               setLogin(null)
               if (value.success === false) {
-                setNotice(t('chan.login.failed').replace('{reason}', value.error ?? '未知原因'))
+                setNotice(t('chan.login.failed').replace('{reason}', value.error ?? t('chan.login.unknown')))
               } else {
                 setNotice(t('chan.login.done').replace('{login}', value.login ?? ''))
                 onChanged()
@@ -4487,8 +4495,8 @@ window.__ModuleLoader__.load({
           const credit = Number(summary?.totalCredit ?? 0)
           const failed = (value?.results ?? []).filter(row => row.outcome?.kind === 'failed')
           const successText = t('chan.claim.result').replace('{count}', String(claimed)).replace('{credit}', String(credit))
-          const failureText = t('chan.claim.failed').replace('{reason}', failed.map(row => row.outcome.message).join('；'))
-          setNotice(failed.length > 0 ? claimed > 0 ? `${successText}；${failureText}` : failureText
+          const failureText = t('chan.claim.failed').replace('{reason}', listJoin(failed.map(row => row.outcome.message), t.locale))
+          setNotice(failed.length > 0 ? claimed > 0 ? `${successText} ${failureText}` : failureText
             : claimed > 0 ? successText : t('chan.claim.none'))
           void loadCredits(); void loadBalances(true)
         } catch (error) { onError(channel, error) } finally { claimPending.current = false; setBusy('') }
@@ -5015,7 +5023,7 @@ window.__ModuleLoader__.load({
                 h('td', { className: 'ofm_num' }, fmtInt(row.outputTokens)),
                 h('td', { className: 'ofm_num' }, fmtInt(row.reasoningTokens)),
                 h('td', { className: 'ofm_num' }, fmtInt(row.cacheReadTokens)),
-                h('td', null, (row.models ?? []).slice().sort((a, b) => ((b.inputTokens ?? 0) + (b.outputTokens ?? 0)) - ((a.inputTokens ?? 0) + (a.outputTokens ?? 0))).slice(0, 2).map(model => `${model.model} · ${fmtInt((model.inputTokens ?? 0) + (model.outputTokens ?? 0))}`).join('，') || '—'))))))) : null,
+                h('td', null, (row.models ?? []).slice().sort((a, b) => ((b.inputTokens ?? 0) + (b.outputTokens ?? 0)) - ((a.inputTokens ?? 0) + (a.outputTokens ?? 0))).slice(0, 2).map(model => `${model.model} · ${fmtInt((model.inputTokens ?? 0) + (model.outputTokens ?? 0))}`).join(', ') || '—'))))))) : null,
         loaded ? h(Section, { title: t('dash.modelsTitle'), hint: t('dash.modelsHint') },
           models.length === 0 ? h('p', { className: 'ofm_note' }, t('dash.empty'))
             : h('div', { className: 'ofm_tablewrap' }, h('table', { className: 'ofm_table' },
@@ -5032,7 +5040,7 @@ window.__ModuleLoader__.load({
                 h('th', { key: 'share' }, t('log.share')))),
               h('tbody', null, models.map(row => h('tr', { key: row.model },
                 h('td', null, h('b', null, row.model)),
-                h('td', null, row.providers.join('，')),
+                h('td', null, row.providers.join(', ')),
                 h('td', { className: 'ofm_num' }, fmtInt(row.requests)),
                 h('td', { className: 'ofm_num' }, row.errors > 0 ? h('span', { className: 'ofm_badge unavailable' }, fmtInt(row.errors)) : fmtInt(0)),
                 h('td', { className: 'ofm_num' }, fmtInt(row.inputTokens + row.outputTokens)),

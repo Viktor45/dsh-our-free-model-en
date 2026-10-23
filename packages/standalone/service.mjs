@@ -34,7 +34,7 @@ async function acquireProcessGuard(dataDir) {
     })
   } catch (error) {
     if (error.code === 'EADDRINUSE') {
-      throw Object.assign(new Error('数据目录已被服务占用'), { code: 'EEXIST', cause: error })
+      throw Object.assign(new Error('The data directory is already in use by a service'), { code: 'EEXIST', cause: error })
     }
     throw error
   }
@@ -216,7 +216,9 @@ export async function startStandalone({
     }
   }
   try {
-    stores = createRuntimeStores({ dataDir, logger })
+    // The console renders in English, so the seeded fallback chain is named in
+    // English too; the plugin keeps the Chinese seed it ships with.
+    stores = createRuntimeStores({ dataDir, logger, comboName: 'Recommended free models' })
     const { settings } = stores
     const savedPort = settings.get().standalonePort
     const requestedPort = port ?? (Number.isInteger(savedPort) && savedPort >= 0 && savedPort <= 65535 ? savedPort : 18900)
@@ -234,7 +236,7 @@ export async function startStandalone({
     eac = createStandaloneEac({
       dataDir,
       ...process.env.OFM_TEST_UPSTREAM ? { openExternal: async () => false } : {},
-      onSaved: () => { void runtime?.refreshSealedLane().catch(error => logger.warn?.(`EAC 清单刷新失败：${error.message}`)) },
+      onSaved: () => { void runtime?.refreshSealedLane().catch(error => logger.warn?.(`The EAC catalog refresh failed: ${error.message}`)) },
     })
     runtime = createModelRuntime({
       ...stores, logger, attributionUserAgent: `${PRODUCT}/${VERSION}`,

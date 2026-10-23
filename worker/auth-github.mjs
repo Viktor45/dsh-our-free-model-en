@@ -43,7 +43,7 @@ import { fileURLToPath } from 'node:url'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 
-const DEFAULT_STAR_REPO = 'Ebony-Vinyl/dsh-our-free-model'
+const DEFAULT_STAR_REPO = 'Viktor45/dsh-our-free-model-en'
 const GITHUB_AUTHORIZE = 'https://github.com/login/oauth/authorize'
 const GITHUB_TOKEN_URL = 'https://github.com/login/oauth/access_token'
 const GITHUB_API = 'https://api.github.com'

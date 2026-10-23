@@ -1,16 +1,16 @@
 {
   "subject": {
-    "id": "dev.ebony-vinyl.dsh-our-free-model",
+    "id": "dev.viktor45.dsh-our-free-model-en",
     "name": "dsh-our-free-model",
-    "version": "2.5.9",
-    "sourceRepository": "https://github.com/Ebony-Vinyl/dsh-our-free-model",
+    "version": "2.6.0",
+    "sourceRepository": "https://github.com/Viktor45/dsh-our-free-model-en",
     "sourceRevision": "e15f6405b8f82209660b0012b709093d915a1056"
   },
   "license": {
     "spdx": "MIT",
     "file": "LICENSE",
     "copyright": "Copyright (c) 2026 Ebony-Vinyl",
-    "notes": "MIT preserved unchanged from the upstream repository; no code was relicensed in standardization."
+    "notes": "MIT preserved unchanged from the upstream repository; no code was relicensed in standardization. This fork keeps the upstream copyright line and adds its own distribution channel; it does not claim to be the upstream publisher."
   },
   "upstreamRuntime": {
     "package": "@deepseek-ai/dsh-llm",

@@ -63,7 +63,7 @@
  *                        "not configured" and (if enforcement is on) the lane
  *                        refuses every chat turn.
  *   REQUIRE_STAR_REPO    repo a user must have starred (default
- *                        Ebony-Vinyl/dsh-our-free-model)
+ *                        Viktor45/dsh-our-free-model-en)
  *   REQUIRE_USER_TOKEN   "1" = chat turns require a per-user token issued only
  *                        after GitHub login + star. Default 0: the compatibility
  *                        window — tokens are tracked, nothing is refused.
@@ -377,7 +377,7 @@ export function createGatewayServer(hostEnv = {}, options = {}) {
       const timer = setTimeout(() => controller.abort(), 3000)
       timer.unref?.()
       const impl = poolProbe.fetchImpl ?? fetch
-      const response = await impl('https://api.github.com/repos/Ebony-Vinyl/dsh-our-free-model', {
+      const response = await impl('https://api.github.com/repos/Viktor45/dsh-our-free-model-en', {
         headers: { 'user-agent': 'eac-gateway', accept: 'application/vnd.github+json' },
         signal: controller.signal,
       })

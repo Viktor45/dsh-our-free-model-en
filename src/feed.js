@@ -20,8 +20,7 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-
-const REPO = 'Ebony-Vinyl/dsh-our-free-model'
+import { REPO } from './repo.js'
 
 /**
  * Feed locations, in preference order.

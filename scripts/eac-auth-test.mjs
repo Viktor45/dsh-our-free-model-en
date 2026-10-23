@@ -46,7 +46,7 @@ const { signSealedRequest, fetchSealedListing, lane, laneUser } = await import('
 const { classifyFailure, CODE } = await import('../src/http.js')
 
 const SIGNING = 'eac-auth-test-signing-secret-0123456789'
-const STAR_REPO = 'Ebony-Vinyl/dsh-our-free-model'
+const STAR_REPO = 'Viktor45/dsh-our-free-model-en'
 const MODEL = 'deepseek-ai/deepseek-v4.1-flash'
 
 // ── local stand-ins ──────────────────────────────────────────────────────────

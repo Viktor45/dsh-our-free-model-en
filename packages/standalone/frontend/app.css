@@ -5151,8 +5151,8 @@ input:disabled, select:disabled, textarea:disabled, .ui-input:disabled {
 /* ==== 修复②④⑤ END ==== */
 /* ⑥ 渠道页搜索框：给图标让位，不再压字 */
 :root:not([data-theme="dark"]) .channel-search input,
-:root:not([data-theme="dark"]) input[placeholder*="搜索渠道"],
-:root:not([data-theme="dark"]) input[placeholder*="搜索模型"] {
+:root:not([data-theme="dark"]) .model-search input,
+:root:not([data-theme="dark"]) .usage-model-search input {
   padding-left: 34px !important;
 }
 

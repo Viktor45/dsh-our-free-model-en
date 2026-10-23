@@ -1,8 +1,8 @@
 {
-  "version": "2.5.9",
+  "version": "2.6.0",
   "base": "../",
-  "publishedAt": "2026-10-23T02:15:30.419Z",
-  "notes": "精简账号渠道至 10 个，清理遗留实现、依赖与桌面端资源，保留历史存储和备份兼容；同步交流群 5 的二维码与群号。",
+  "publishedAt": "2026-10-23T23:18:26.365Z",
+  "notes": "Fork 自有发布通道：升级与公告源改指 Viktor45/dsh-our-free-model-en，清单由本 Fork 的 Ed25519 私钥签名（上游与本 Fork 是互不接受的信任根）；桌面端与独立服务的用户可见文案统一为英文。",
   "files": [
     {
       "path": "adapter/dsh-llm.d.ts",
@@ -16,8 +16,8 @@
     },
     {
       "path": "client.js",
-      "size": 508476,
-      "sha256": "8a322f193c24f0c66c15013d79244b644b32b880b7dbdda881979d8a0870f286"
+      "size": 508883,
+      "sha256": "9cf0d1d7fa80fd04a6ac26cf5e6ec392fe1a40a2db3e737a1e8a0dd92a4159f3"
     },
     {
       "path": "cordis.patch.yml",
@@ -52,7 +52,7 @@
     {
       "path": "package.json",
       "size": 2927,
-      "sha256": "fc101b03acbb819b0e47c7b81537f122470902d553746746ed41824f1c4d8113"
+      "sha256": "c85e6d39d31d81375dcd038c8a29477f5b01934c20c9231c931f753f72e33393"
     },
     {
       "path": "src/adapter.js",
@@ -96,8 +96,8 @@
     },
     {
       "path": "src/core/runtime.js",
-      "size": 20100,
-      "sha256": "9901e42b1f27489b140510bde8cd535faa490a494c520c73ae235f8862b9fd1f"
+      "size": 20469,
+      "sha256": "3f3fd9f9c7eb89268b943bb2d692cf04b8a9be3b4d3f14308ad86de0f57562cb"
     },
     {
       "path": "src/core/stats.js",
@@ -141,8 +141,8 @@
     },
     {
       "path": "src/feed.js",
-      "size": 13366,
-      "sha256": "06cbe31d895d7f9dd6b39f9a4992b9d495ad50acd3fb772fec0799694d3c9519"
+      "size": 13352,
+      "sha256": "41a2f6e56d0d47c690c457548254deccf12e10f956a0321cdec053b0fa3eec97"
     },
     {
       "path": "src/forward.js",
@@ -225,6 +225,11 @@
       "sha256": "d6918993538bd1e35576594c1140bb41420e2499c19c96a8c4d9a04601efda02"
     },
     {
+      "path": "src/repo.js",
+      "size": 743,
+      "sha256": "a8b85b42ae5933cc3f28f3e11ce41f3402e82428911a403e46254ea4d948b572"
+    },
+    {
       "path": "src/route/classify.js",
       "size": 28738,
       "sha256": "9123be50f8284a9a8735abac7c0e541e726fdfdce1de9aab841e4e5bbe348e17"
@@ -236,8 +241,8 @@
     },
     {
       "path": "src/sponsor.js",
-      "size": 14680,
-      "sha256": "57037468b5ecfeff7bbeb9d802f0193d31ab8ba7b80582915bc4d7c4fa8d0266"
+      "size": 15277,
+      "sha256": "3e5cbd0f77ee0de7e1c18fbb3e2ec0013cd94061c9d1a08a9c478f63f3261d04"
     },
     {
       "path": "src/store.js",
@@ -361,8 +366,8 @@
     },
     {
       "path": "src/updater.js",
-      "size": 50925,
-      "sha256": "6dbbd82b6dab3788bead5f1792c825bf2f979b6802848ce566143ea14aef123d"
+      "size": 51599,
+      "sha256": "a734f56f5b8f93d33d245ec34cc0f005beb7f40026f5e714fb5b207541d60ed9"
     },
     {
       "path": "src/upstream.js",
@@ -405,5 +410,5 @@
       "sha256": "6419471effa631519def7797d76d7ede38b9fcfa9a83c2148c8ef5d43355b43d"
     }
   ],
-  "signature": "X803SuJxXO0siv03qgt4I47Qo0azjZcMMnqDUM7W6laaRj4jd7KnFC24V/GaeLTcq/ETLilF1vHOmL8FdhHIAg=="
+  "signature": "m4ZKo1nUX27ZRcHcaqlaq0ccdkwJxJm5sP/+0SSs6HBzkrjYVP9GknDJjX2Lm5qQ7Nk8kBWH9BLejRdBZtbjCw=="
 }

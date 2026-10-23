@@ -8,7 +8,7 @@ import { openExternal } from '../packages/standalone/open-external.mjs'
 for (const url of ['file:///C:/Windows/notepad.exe', 'javascript:alert(1)', 'https://user:password@example.com/']) {
   assert.equal(await openExternal(url, { exec: async () => assert.fail('不应执行非网页或带凭据的链接') }), false)
 }
-const address = "https://github.com/Ebony-Vinyl/dsh-our-free-model?quoted='&a=1"
+const address = "https://github.com/Viktor45/dsh-our-free-model-en?quoted='&a=1"
 let launch
 assert.equal(await openExternal(address, { platform: 'win32', exec: async (...args) => { launch = args } }), true)
 assert.match(launch[0], /powershell\.exe$/)

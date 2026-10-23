@@ -29,6 +29,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { publishedBytes } from './lib/published-bytes.mjs'
+import { REPO } from '../src/repo.js'
 
 const repo = fileURLToPath(new URL('..', import.meta.url))
 const read = rel => fs.readFileSync(path.join(repo, rel), 'utf8')
@@ -96,7 +97,7 @@ if (manifest.artifact !== undefined) {
 }
 
 const source = manifest.source ?? {}
-check('source repository is the plugin repository', source.repository, `https://github.com/Ebony-Vinyl/${pkg.name}`)
+check('source repository is the plugin repository', source.repository, `https://github.com/${REPO}`)
 check('source revision is a full commit sha', /^[0-9a-f]{40}$/.test(source.revision ?? ''), true)
 // The revision names the most recent commit that touched the release content —
 // package.json plus everything in the `files` list, exactly the set the

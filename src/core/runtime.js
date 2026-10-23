@@ -20,8 +20,9 @@ const FALLBACK_CATALOG = buildCatalog([
   'muse-spark-1.3-contributor-free', 'muse-spark-1.2-contributor-free',
 ])
 
-/** 路径由产品入口决定；核心不解析 DSH_HOME，也不发现宿主服务。 */
-export function createRuntimeStores({ dataDir, logger = console }) {
+/** 路径由产品入口决定；核心不解析 DSH_HOME，也不发现宿主服务。
+ * `comboName` 只改种子链的显示名，用来让界面语言统一；用户改过的名字不动。 */
+export function createRuntimeStores({ dataDir, logger = console, comboName }) {
   if (typeof dataDir !== 'string' || !path.isAbsolute(dataDir)) {
     throw new TypeError('dataDir must be an absolute path')
   }
@@ -34,6 +35,11 @@ export function createRuntimeStores({ dataDir, logger = console }) {
   // merely because a new default was added to SETTINGS_INITIAL; user edits to
   // an existing `combos` field still win through JsonStore's normal merge.
   const settingsInitial = structuredClone(SETTINGS_INITIAL)
+  const seed = settingsInitial.combos?.[0]
+  if (typeof comboName === 'string' && comboName !== '' && seed !== undefined
+    && seed.id === SETTINGS_INITIAL.combos[0].id && seed.name === SETTINGS_INITIAL.combos[0].name) {
+    seed.name = comboName
+  }
   const settingsPath = path.join(dataDir, 'settings.json')
   if (fs.existsSync(settingsPath)) settingsInitial.combos = []
   const settings = new JsonStore(settingsPath, settingsInitial, {

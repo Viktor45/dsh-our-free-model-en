@@ -10,10 +10,10 @@ export class Service {
 
 /** 各渠道实现完整协议；基类对未实现的接口显式失败。 */
 export class LlmAdapter {
-  listProviders() { throw new Error('渠道未实现供应商目录') }
-  listModels() { throw new Error('渠道未实现模型目录') }
-  resolveModel() { throw new Error('渠道未实现模型解析') }
-  stream() { throw new Error('渠道未实现流式调用') }
+  listProviders() { throw new Error('The channel does not implement the provider catalog') }
+  listModels() { throw new Error('The channel does not implement the model catalog') }
+  resolveModel() { throw new Error('The channel does not implement model resolution') }
+  stream() { throw new Error('The channel does not implement streaming calls') }
   async prepareCall(provider, model, signal) {
     return { model: await this.resolveModel(provider, model, signal), stream: options => this.stream(options) }
   }

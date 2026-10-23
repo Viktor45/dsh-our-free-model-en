@@ -10,9 +10,9 @@ import './settings.css'
 type Draft = ReturnType<typeof settingsDraft>
 type NumberField = 'defaultMaxTokens' | 'probeIntervalMinutes'
 const connectionError = (reason: unknown) => reason instanceof Error
-  ? reason.name === 'TimeoutError' ? '保存请求超时，结果尚未确认。请重试或检查服务状态。'
-    : reason instanceof TypeError && /fetch/i.test(reason.message) ? '无法连接本地服务，修改已保留，请确认服务正在运行后重试。'
-    : reason.message : '保存失败，修改已保留，请重试。'
+  ? reason.name === 'TimeoutError' ? 'The save request timed out and its result is unconfirmed. Please try again or check the service.'
+    : reason instanceof TypeError && /fetch/i.test(reason.message) ? 'Cannot reach the local service; your changes are kept, so try again once it is running.'
+    : reason.message : 'Saving failed; your changes are kept, so please try again.'
 
 export function Settings({ summary, host, active }: { summary: Summary; host: Host; active: boolean }) {
   const visibility = visibilityCopy(document.documentElement.lang)
@@ -53,10 +53,10 @@ export function Settings({ summary, host, active }: { summary: Summary; host: Ho
       const saved = await host.saveSettings(validation.patch)
       if (!mounted.current) return
       setState({ saved, draft: settingsDraft(saved) })
-      if (feedbackCurrent()) setMessage('设置已保存并生效')
+      if (feedbackCurrent()) setMessage('Settings saved and in effect')
       // 保存结果已确认；后续读取失败不能误报为保存失败。
       try { await host.refresh() } catch {
-        if (feedbackCurrent()) setMessage('设置已保存；状态刷新失败，稍后会自动重试。')
+        if (feedbackCurrent()) setMessage('Settings saved; refreshing the status failed and will retry automatically.')
       }
     } catch (reason) {
       if (feedbackCurrent()) setError(connectionError(reason))
@@ -85,36 +85,36 @@ export function Settings({ summary, host, active }: { summary: Summary; host: Ho
   const statusClass = saving ? 'settings-status-saving' : dirty ? 'settings-status-dirty' : message ? 'settings-status-saved' : ''
   return <div className="settings-browser" data-testid="settings-ready">
     <header className="dashboard-heading"><div><div className="heading-eyebrow">MANAGEMENT / SETTINGS</div>
-      <h1>服务设置</h1><p>调整本机推理与模型刷新，保存后生效。</p></div>
-      <Badge tone={summary.settings.enabled ? 'success' : 'warning'}>{summary.settings.enabled ? '推理服务已启用' : '推理服务已暂停'}</Badge>
+      <h1>Service settings</h1><p>Adjust local inference and model refresh; changes take effect once saved.</p></div>
+      <Badge tone={summary.settings.enabled ? 'success' : 'warning'}>{summary.settings.enabled ? 'Inference service enabled' : 'Inference service paused'}</Badge>
     </header>
     <form onSubmit={event => { void submit(event) }} noValidate>
       <fieldset disabled={saving} className="settings-fieldset">
-        <Card className="settings-card"><div className="settings-card-heading"><Settings2 size={16} /><div><h2>推理与模型</h2><p>控制客户端调用与模型展示。</p></div></div>
-          {toggle('enabled', '启用推理服务', '关闭后暂停 API 推理，管理页面仍可访问。')}
-          {toggle('exposeRegionModels', '显示地区受限模型', '保留受当前出口地区限制的模型供客户端选择。')}
-          {toggle('hideFreeModels', visibility.hideFree, '仅从选择器和 API 模型清单隐藏，保留历史模型调用。')}
-          {toggle('hideEacModels', visibility.hideEac, '保留授权和历史模型调用，可随时恢复显示。')}
-          {toggle('streamRecovery', '自动恢复断流', '允许从已生成的检查点继续回答。')}
-          {numeric('defaultMaxTokens', '单次最大输出 Token', '512–131072，实际输出还受模型能力限制。', 512, 131072)}
+        <Card className="settings-card"><div className="settings-card-heading"><Settings2 size={16} /><div><h2>Inference & models</h2><p>Control client calls and how models are shown.</p></div></div>
+          {toggle('enabled', 'Enable the inference service', 'Turning this off pauses API inference; the management page stays reachable.')}
+          {toggle('exposeRegionModels', 'Show region-limited models', 'Keep models gated by your current egress country selectable for clients.')}
+          {toggle('hideFreeModels', visibility.hideFree, 'Hides them from the picker and the API model list only; existing model calls are kept.')}
+          {toggle('hideEacModels', visibility.hideEac, 'Keeps authorization and existing model calls; you can show them again at any time.')}
+          {toggle('streamRecovery', 'Automatic stream recovery', 'Allows continuing an answer from the checkpoint already produced.')}
+          {numeric('defaultMaxTokens', 'Output ceiling per call (tokens)', '512–131072; the actual output is also limited by the model.', 512, 131072)}
         </Card>
-        <Card className="settings-card"><div className="settings-card-heading"><RefreshCw size={16} /><div><h2>模型刷新</h2><p>管理模型清单的周期更新与探测。</p></div></div>
-          {numeric('probeIntervalMinutes', '刷新间隔（分钟）', '1–1440 分钟，保存后重新安排下一轮。', 1, 1440)}
-          {toggle('standaloneProbe', '自动探测可用性（已停用）', '自动探测已关闭：周期刷新只更新模型清单，不会发送探测请求。', true)}
+        <Card className="settings-card"><div className="settings-card-heading"><RefreshCw size={16} /><div><h2>Model refresh</h2><p>Manage the roster's periodic update and probing.</p></div></div>
+          {numeric('probeIntervalMinutes', 'Refresh interval (minutes)', '1–1440 minutes; the next round is scheduled after saving.', 1, 1440)}
+          {toggle('standaloneProbe', 'Probe availability automatically (disabled)', 'Automatic probing is off: periodic refreshes only update the model roster and send no probe requests.', true)}
           <p className="settings-note" role="note"><CircleAlert size={15} /><span>{summary.automaticRefresh
-            ? '自动刷新已启用，保存间隔后会重新安排下一轮。'
-            : '当前以 --no-refresh 启动。设置会保存，但自动任务保持暂停；手动刷新仍可用。'}</span></p>
+            ? 'Automatic refresh is on; saving the interval schedules the next round.'
+            : 'Currently started with --no-refresh. Settings are still saved, but automatic jobs stay paused; manual refresh keeps working.'}</span></p>
         </Card>
-        <div className="settings-footer"><span role="status" aria-live="polite" className={statusClass}><span className="settings-status-dot" aria-hidden="true" />{saving ? '正在保存，请稍候…' : dirty ? '有尚未保存的修改' : message || '当前设置已同步'}</span>
+        <div className="settings-footer"><span role="status" aria-live="polite" className={statusClass}><span className="settings-status-dot" aria-hidden="true" />{saving ? 'Saving, please wait…' : dirty ? 'You have unsaved changes' : message || 'Settings are in sync'}</span>
           <div className="settings-actions"><Button variant="outline" disabled={!dirty || saving} onClick={() => {
             setState(previous => ({ ...previous, draft: settingsDraft(previous.saved) }))
             setErrors({}); setError(''); setMessage('')
-          }}><RotateCcw size={15} />撤销修改</Button>
-            <Button type="submit" disabled={!dirty || saving}>{saving ? <LoaderCircle size={15} className="spinning" /> : message && !dirty ? <Check size={15} /> : <Save size={15} />}{saving ? '正在保存' : '保存设置'}</Button></div>
+          }}><RotateCcw size={15} />Discard changes</Button>
+            <Button type="submit" disabled={!dirty || saving}>{saving ? <LoaderCircle size={15} className="spinning" /> : message && !dirty ? <Check size={15} /> : <Save size={15} />}{saving ? 'Saving' : 'Save settings'}</Button></div>
         </div>
       </fieldset>
       {error && <p className="settings-save-error" role="alert"><CircleAlert size={16} /><span>{error}</span></p>}
     </form>
-    <p className="footnote">配置保存在当前独立服务的数据目录中。页面读取和保存设置不会直接发送模型推理请求。</p>
+    <p className="footnote">Configuration is stored in the current standalone service's data directory. Reading or saving this page never sends a model request.</p>
   </div>
 }

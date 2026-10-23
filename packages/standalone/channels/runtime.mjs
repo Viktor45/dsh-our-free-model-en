@@ -29,7 +29,7 @@ export async function createChannelRuntime({ dataDir, logger = console, stats })
   }
   worker.on('error', rejectAll)
   worker.on('exit', code => {
-    if (!closed) rejectAll(new Error(`渠道进程已退出（${code}）`))
+    if (!closed) rejectAll(new Error(`The channel process exited (${code})`))
     finishClose?.()
   })
   worker.on('message', message => {
@@ -39,7 +39,7 @@ export async function createChannelRuntime({ dataDir, logger = console, stats })
     if (message.type === 'changed') {
       if (closed) return
       clearTimeout(refreshTimer)
-      refreshTimer = setTimeout(() => { void refresh().catch(error => logger.warn?.(`渠道目录刷新失败：${error.message}`)) }, 200)
+      refreshTimer = setTimeout(() => { void refresh().catch(error => logger.warn?.(`The channel catalog refresh failed: ${error.message}`)) }, 200)
       refreshTimer.unref?.()
       return
     }
@@ -51,14 +51,14 @@ export async function createChannelRuntime({ dataDir, logger = console, stats })
     else entry.resolve(message.value)
   })
   function call(type, payload = {}, signal, onChunk, timeoutMs = 120000) {
-    if (closed || failed) return Promise.reject(failed ?? new Error('渠道已停止'))
-    if (signal?.aborted) return Promise.reject(signal.reason ?? new Error('请求已取消'))
+    if (closed || failed) return Promise.reject(failed ?? new Error('The channel has stopped'))
+    if (signal?.aborted) return Promise.reject(signal.reason ?? new Error('The request was cancelled'))
     const id = ++sequence
     return new Promise((resolve, reject) => {
       const finish = fn => value => { clearTimeout(timer); signal?.removeEventListener('abort', abort); pending.delete(id); fn(value) }
       const abort = () => {
         worker.postMessage({ type: 'cancel', id })
-        entry.reject(signal?.reason ?? new Error('渠道请求超时或已取消'))
+        entry.reject(signal?.reason ?? new Error('The channel request timed out or was cancelled'))
       }
       const timer = setTimeout(abort, timeoutMs)
       timer.unref?.()
@@ -80,7 +80,7 @@ export async function createChannelRuntime({ dataDir, logger = console, stats })
     refresh,
     handles: model => providers.some(provider => model.startsWith(`${provider}/`)),
     async rpc(body, signal) {
-      if (typeof body?.method !== 'string' || !Object.hasOwn(body, 'payload')) throw Object.assign(new Error('渠道请求缺少 method 或 payload'), { statusCode: 400 })
+      if (typeof body?.method !== 'string' || !Object.hasOwn(body, 'payload')) throw Object.assign(new Error('The channel request is missing method or payload'), { statusCode: 400 })
       return call('rpc', { call: { method: body.method, payload: body.payload } }, signal, undefined, 10 * 60000)
     },
     async complete(request, onChunk) {
@@ -115,7 +115,7 @@ export async function createChannelRuntime({ dataDir, logger = console, stats })
       if (closing) return closing
       closed = true
       clearTimeout(refreshTimer)
-      rejectAll(new Error('渠道正在停止'))
+      rejectAll(new Error('The channel is stopping'))
       closing = (async () => {
         let timer
         await new Promise(resolve => {
@@ -130,9 +130,9 @@ export async function createChannelRuntime({ dataDir, logger = console, stats })
     },
   }
   try {
-    const timeout = setTimeout(() => readyReject(new Error('渠道初始化超时')), 30000)
+    const timeout = setTimeout(() => readyReject(new Error('The channel initialization timed out')), 30000)
     try { await ready } finally { clearTimeout(timeout) }
-    runtime.ready = refresh().catch(error => { if (!closed) logger.warn?.(`渠道启动清单刷新失败：${error.message}`) })
+    runtime.ready = refresh().catch(error => { if (!closed) logger.warn?.(`The startup catalog refresh failed: ${error.message}`) })
     return runtime
   } catch (error) { await runtime.close(); throw error }
 }

@@ -51,7 +51,7 @@ New API 面板本身不按 IP 记账，这些视图由网关提供。Cloudflare 
   ```ini
   GITHUB_CLIENT_ID=<OAuth App 的 Client ID>
   GITHUB_CLIENT_SECRET=<OAuth App 的 Client Secret>
-  REQUIRE_STAR_REPO=Ebony-Vinyl/dsh-our-free-model
+  REQUIRE_STAR_REPO=Viktor45/dsh-our-free-model-en
   REQUIRE_USER_TOKEN=0        # 0=兼容期（只记录不拒绝）；1=对话必须携带有效令牌
   STAR_RECHECK_HOURS=12
   PUBLIC_ORIGIN=https://<网关域名>   # 用于拼 OAuth 回调地址；留空则按请求头推导
@@ -142,7 +142,7 @@ New API 面板本身不按 IP 记账，这些视图由网关提供。Cloudflare 
    # GitHub 授权闸门（见上一节；不填则闸门不启用，旧行为不变）
    GITHUB_CLIENT_ID=
    GITHUB_CLIENT_SECRET=
-   REQUIRE_STAR_REPO=Ebony-Vinyl/dsh-our-free-model
+   REQUIRE_STAR_REPO=Viktor45/dsh-our-free-model-en
    REQUIRE_USER_TOKEN=0
    STAR_RECHECK_HOURS=12
    PUBLIC_ORIGIN=https://<网关域名>

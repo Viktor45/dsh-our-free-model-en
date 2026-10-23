@@ -28135,7 +28135,7 @@ var FileStore = class {
   }
 };
 function resolveChannelPackHome(ctx) {
-  if (typeof ctx.platform?.channelHome !== "string") throw new Error("独立渠道缺少数据目录");
+  if (typeof ctx.platform?.channelHome !== "string") throw new Error("The standalone channel has no data directory");
   return ctx.platform.channelHome;
 }
 function createChannelPackStore(ctx) {

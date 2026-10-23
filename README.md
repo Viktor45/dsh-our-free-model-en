@@ -148,7 +148,7 @@ PROFILE_UPGRADE_REQUIRED: offline dependency migration is not yet available
 以真实目录手工安装时，使用可信源码打出的本地 tarball：
 
 1. 创建 `<DSH_HOME>/profiles/<profile>/vendor/`，在审核过的本仓库目录运行 `npm pack --ignore-scripts --pack-destination "<DSH_HOME>/profiles/<profile>/vendor"`，或将本仓库正式发布的同版本 tarball 放入该目录。本地打包不执行 npm 发布。
-2. 在 profile 的 `package.json` 的 dependencies 中加入 `"dsh-our-free-model": "file:./vendor/dsh-our-free-model-2.5.9.tgz"`。文件名版本跟随仓库 `package.json`，不要改成同名 npm 注册表版本；再通过宿主的安装流程解析依赖。
+2. 在 profile 的 `package.json` 的 dependencies 中加入 `"dsh-our-free-model": "file:./vendor/dsh-our-free-model-2.6.0.tgz"`。文件名版本跟随仓库 `package.json`，不要改成同名 npm 注册表版本；再通过宿主的安装流程解析依赖。
 3. 在 dsh.profile.bundles 末尾追加 `"dsh-our-free-model"`。
 
 包管理器拥有这份安装的字节时，同时将 bundle config 或插件 `settings.json` 的 `distribution` 设为 `managed`，由包管理器统一更新；应用内升级、公告 feed 与热重载会停用，模型功能保留。以后更新时替换可信 tarball 并同步依赖路径，避免包管理器按旧锁文件恢复旧版本。
@@ -211,7 +211,7 @@ git 执行 `git ls-remote`。若本机 git 配置了 `insteadOf` 重写（常见
 文件之前失败。处理方式二选一：
 
 - 修正本机 git 配置（`git config --global --get-regexp insteadof` 查看重写规则），保证终端里
-  `git ls-remote https://github.com/Ebony-Vinyl/dsh-our-free-model.git` 能成功；
+  `git ls-remote https://github.com/Viktor45/dsh-our-free-model-en.git` 能成功；
 - 改用本地安装：从 Releases 下载发布包解压后 `dsh plugin add <解压目录>`，绕开 git 解析。
 
 **安装失败：`profile "desktop" is managed exclusively by the Electron application`**
@@ -764,9 +764,9 @@ MIT，见 LICENSE。
 
 图表由 Star History 自动更新，无需手动提交图片。受服务缓存（当前为 24 小时）和 GitHub 图片缓存影响，显示可能延迟，并非秒级实时；点击图表可查看在线趋势。
 
-<a href="https://www.star-history.com/?type=date&amp;repos=Ebony-Vinyl%2Fdsh-our-free-model">
+<a href="https://www.star-history.com/?type=date&amp;repos=Viktor45%2Fdsh-our-free-model-en">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Ebony-Vinyl/dsh-our-free-model&amp;type=Date&amp;theme=dark" />
-    <img alt="dsh-our-free-model 的 GitHub Star 增长趋势" src="https://api.star-history.com/svg?repos=Ebony-Vinyl/dsh-our-free-model&amp;type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Viktor45/dsh-our-free-model-en&amp;type=Date&amp;theme=dark" />
+    <img alt="dsh-our-free-model 的 GitHub Star 增长趋势" src="https://api.star-history.com/svg?repos=Viktor45/dsh-our-free-model-en&amp;type=Date" />
   </picture>
 </a>

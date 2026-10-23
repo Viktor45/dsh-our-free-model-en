@@ -83,7 +83,7 @@ try {
     check(`${variant.name}: 附图可正常显示`, await image.evaluate(e => e.naturalWidth === 1227))
     await shot(page, `${variant.name}-evidence`)
     check(`${variant.name}: 两个外链均带正确邀请码`, (await dialog.locator('a').evaluateAll(links => links.map(link => link.href))).every(url => url === SPONSOR.url))
-    const close = dialog.getByRole('button', { name: '收起至菜单', exact: true })
+    const close = dialog.getByRole('button', { name: 'Fold into menu', exact: true })
     check(`${variant.name}: 阅读到底后收起按钮始终在视口内`, await close.evaluate(e => { const r = e.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight }))
     await close.click()
     // Inspect the actual Web Animation end state: its destination is the sponsor menu.
@@ -95,7 +95,7 @@ try {
     await page.evaluate(key => { localStorage.setItem(key, '1900-01-01'); document.dispatchEvent(new Event('visibilitychange')) }, SPONSOR_DAY_KEY)
     await stable(page)
     check(`${variant.name}: 同一界面跨日再次弹出保持可见`, await dialog.evaluate(e => getComputedStyle(e).opacity === '1' && e.getAnimations().every(a => a.playState !== 'running')))
-    await dialog.getByRole('button', { name: '收起至菜单', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Fold into menu', exact: true }).click()
     await page.waitForSelector('.ofm-sponsor-dialog[open]', { state: 'hidden' })
     const menu = page.locator(variant.route === '/plugin' ? '#ofm-sponsor-menu-plugin' : '#ofm-sponsor-menu-desktop')
     await menu.click(); await page.locator('.ofm-sponsor-page').waitFor()

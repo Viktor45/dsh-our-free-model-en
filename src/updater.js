@@ -28,8 +28,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import crypto from 'node:crypto'
-
-const REPO = 'Ebony-Vinyl/dsh-our-free-model'
+import { REPO } from './repo.js'
 
 /**
  * A GitHub raw proxy. On networks where `raw.githubusercontent.com` and
@@ -73,8 +72,14 @@ export const DEFAULT_MANIFEST_SOURCES = [
  * The sha256 per file pins content, but those hashes travel inside the manifest
  * itself — whoever forges the manifest forges the hashes. This key is the step
  * the forger cannot take.
+ *
+ * Fork note: this fork publishes its own update channel, so it pins its own
+ * key. A client built from this tree verifies manifests signed by this key
+ * only; upstream's manifests (signed with upstream's key) are rejected, and
+ * upstream's clients reject this fork's manifests for the same reason. The two
+ * channels are deliberately separate trust roots.
  */
-export const PINNED_MANIFEST_PUBLIC_KEY = 'MCowBQYDK2VwAyEAeLdSVwYFyazc2PIBC0oLsvo4LghGEQz9iXIl3CqRuXI='
+export const PINNED_MANIFEST_PUBLIC_KEY = 'MCowBQYDK2VwAyEAcm/NWZwEXyAJtZ76BLqCU/Px7L+6IaIQDWBFbfaxmi4='
 
 /** The manifest fields a signature covers, in canonical (sorted-key) JSON. */
 const SIGNED_FIELDS = ['version', 'base', 'publishedAt', 'notes', 'files', 'minSupported']
@@ -145,7 +150,12 @@ export function bustCdnCache(url, now = Date.now()) {
 
 const MAX_MANIFEST_BYTES = 256 * 1024
 const MAX_FILE_BYTES = 4 * 1024 * 1024
-const MAX_FILES = 80
+// A sanity bound on the file list, not a promise about the package size: the
+// cap is what stops a forged manifest from turning the upgrader into a
+// thousand-request downloader. The shipped package has 81 files, so the
+// previous 80 was one file short of its own tree — this fork publishes it with
+// room to spare.
+const MAX_FILES = 120
 const SHA_RE = /^[0-9a-f]{64}$/
 // Hot reload evaluates a fresh updater module before the old request finishes.
 // A process-wide lock keeps the successor from starting a second transaction.

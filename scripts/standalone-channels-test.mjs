@@ -54,7 +54,7 @@ const upstream = http.createServer(async (req, res) => {
     if (expected['x-ofm-signature'] !== req.headers['x-ofm-signature']) { json(res, { error: 'bad-signature' }, 401); return }
   }
   if (pathname.endsWith('/auth/status')) {
-    json(res, { configured: true, required: true, authorized: req.headers['x-ofm-user'] === 'fixture-eac-user', starred: true, login: 'fixture-github', repo: 'Ebony-Vinyl/dsh-our-free-model' })
+    json(res, { configured: true, required: true, authorized: req.headers['x-ofm-user'] === 'fixture-eac-user', starred: true, login: 'fixture-github', repo: 'Viktor45/dsh-our-free-model-en' })
   } else if (pathname.endsWith('/auth/github/start')) {
     res.writeHead(302, { location: 'https://github.com/login/oauth/authorize' }); res.end()
   } else if (pathname.endsWith('/auth/poll')) {
