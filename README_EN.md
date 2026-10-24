@@ -232,6 +232,18 @@ Notes:
 - The bundle ships its own Node runtime and standalone service — no login, no API key.
 - The package is not signed or notarized by Apple. Trust it based on the auditable source change and the reproducible CI build record above, nothing else.
 
+### Building the macOS app from source (native architecture)
+
+`build-macos.sh` in the repository root builds the desktop app **for the architecture of the Mac you run it on** (arm64 on Apple Silicon, x86_64 on Intel):
+
+```bash
+./build-macos.sh              # check the toolchain → install deps → build the web console → produce a .dmg
+./build-macos.sh --clean      # remove the Rust target directory first
+./build-macos.sh --bundle app # build the .app only, no disk image
+```
+
+The script checks its prerequisites before doing any work: macOS with the Xcode command line tools, Node.js satisfying `^22.19.0 || >=24.0.0` whose architecture matches the CPU, and Rust ≥ 1.77.2 whose host target matches the machine. Anything missing stops the run with an actionable message and a non-zero exit status. The artefacts land in `packages/desktop/src-tauri/target/release/bundle/`, and the script prints the sha256 of the `.dmg`. If the first build cannot reach raw.githubusercontent.com (it fetches the license of the bundled Node runtime), point `OFM_DESKTOP_NODE_LICENSE` at a local copy.
+
 ## Usage
 
 **Pick a model.** Open the model selector in the composer and choose anything

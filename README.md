@@ -255,6 +255,24 @@ shasum -a 256 ~/Downloads/Our.Free.Model_<version>_aarch64.dmg
 - 包内自带 Node 运行时与独立服务，安装后即可使用，无需登录、无需 API Key。
 - 该包未经 Apple 签名与公证，是否信任请以上方可审计的源码改动与可复现的 CI 构建记录为准。
 
+### 从源码构建 macOS 应用（当前架构）
+
+仓库根目录的 `build-macos.sh` 会为**当前这台 Mac 的架构**构建桌面应用（Apple Silicon 出 arm64，
+Intel 出 x86_64）：
+
+```bash
+./build-macos.sh            # 检查工具链 → 安装依赖 → 构建独立端网页 → 产出 .dmg
+./build-macos.sh --clean    # 先删掉 Rust target 目录再构建
+./build-macos.sh --bundle app  # 只产出 .app，不做磁盘映像
+```
+
+脚本先自检：必须是 macOS、装有 Xcode 命令行工具、Node.js 满足 `^22.19.0 || >=24.0.0`
+且与本机 CPU 架构一致、Rust ≥ 1.77.2 且工具链目标与本机一致；任何一项不满足都会给出
+可执行的补救提示并以非零状态退出。构建产物在
+`packages/desktop/src-tauri/target/release/bundle/` 下，脚本会打印 `.dmg` 的 sha256。
+首次构建若无法访问 raw.githubusercontent.com（取 Node 运行时的 LICENSE），
+可用 `OFM_DESKTOP_NODE_LICENSE=/path/to/LICENSE` 指向本地副本。
+
 ## 使用说明
 
 **选择模型**：打开输入框的模型选择器，选择 Our Free Model 分组下的任意模型。选择结果按会话持久化。
