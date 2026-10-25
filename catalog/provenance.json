@@ -2,9 +2,9 @@
   "subject": {
     "id": "dev.viktor45.dsh-our-free-model-en",
     "name": "dsh-our-free-model",
-    "version": "2.6.0",
+    "version": "2.7.1",
     "sourceRepository": "https://github.com/Viktor45/dsh-our-free-model-en",
-    "sourceRevision": "697feff8c5a2b0604001baf65c6e9fd04ddfb1cf"
+    "sourceRevision": "PLACEHOLDER_REVISION"
   },
   "license": {
     "spdx": "MIT",

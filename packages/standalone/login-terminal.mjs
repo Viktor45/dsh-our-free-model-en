@@ -17,17 +17,17 @@ export async function openLoginTerminal(dataDir, {
     const copy = [
       'const fs = require("node:fs");',
       'const { execFileSync } = require("node:child_process");',
-      'const key = JSON.parse(fs.readFileSync(process.argv[1], "utf8")).forwardKey;',
+      'const settings = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); const key = settings.managementKey ?? settings.forwardKey;',
       'if (typeof key !== "string" || !key.trim()) throw new Error("missing login token");',
       'execFileSync("/usr/bin/pbcopy", [], { input: key, timeout: 5000, stdio: ["pipe", "ignore", "ignore"] });',
     ].join(' ')
     // 命令行只包含固定脚本和配置路径；令牌只经 stdin 传给 pbcopy。
     const command = [
       `if ${shellQuote(execPath)} -e ${shellQuote(copy)} ${shellQuote(keyFile)} 2>/dev/null; then`,
-      `  printf '%s\\n' ${shellQuote('Login token copied. Go back to the page and paste it into the login token field.')}`,
-      `  printf '%s\\n' ${shellQuote('You can close this window when done; never share the token with anyone.')}`,
+      `  printf '%s\\n' ${shellQuote('登录令牌已复制。回到网页，粘贴到登录令牌输入框即可。')}`,
+      `  printf '%s\\n' ${shellQuote('完成后可以关闭此窗口，请勿向他人分享令牌。')}`,
       'else',
-      `  printf '%s\\n' ${shellQuote('Could not read the token; check the local settings.json or use the page\'s manual entry.')}`,
+      `  printf '%s\\n' ${shellQuote('获取令牌失败，请检查本地 settings.json 或使用页面的手动入口。')}`,
       'fi',
     ].join('\n')
     const script = [
@@ -42,20 +42,22 @@ export async function openLoginTerminal(dataDir, {
     return
   }
   if (platform !== 'win32') {
-    throw Object.assign(new Error('Opening a terminal automatically works on Windows and macOS only; follow the page instructions to get the token by hand.'), { statusCode: 400 })
+    throw Object.assign(new Error('自动打开终端仅支持 Windows 和 macOS，请按页面说明手动获取令牌。'), { statusCode: 400 })
   }
   const powershell = path.win32.join(systemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe')
   const command = [
-    "$Host.UI.RawUI.WindowTitle = 'Our Free Model - Login token'",
+    "$Host.UI.RawUI.WindowTitle = 'Our Free Model - 获取登录令牌'",
     "$ErrorActionPreference = 'Stop'",
     'try {',
-    `  $ofmLoginKey = (Get-Content -LiteralPath ${quote(keyFile)} -Raw -Encoding UTF8 | ConvertFrom-Json).forwardKey`,
-    "  if ([string]::IsNullOrWhiteSpace($ofmLoginKey)) { throw 'The settings file has no login token' }",
+    `  $ofmLoginSettings = Get-Content -LiteralPath ${quote(keyFile)} -Raw -Encoding UTF8 | ConvertFrom-Json`,
+    '  $ofmLoginKey = $ofmLoginSettings.managementKey',
+    '  if ([string]::IsNullOrWhiteSpace($ofmLoginKey)) { $ofmLoginKey = $ofmLoginSettings.forwardKey }',
+    "  if ([string]::IsNullOrWhiteSpace($ofmLoginKey)) { throw '配置文件没有登录令牌' }",
     '  Set-Clipboard -Value $ofmLoginKey',
     '  $ofmLoginKey = $null',
-    "  Write-Host 'Login token copied. Go back to the page and paste it into the login token field.' -ForegroundColor Green",
-    "  Write-Host 'You can close this window when done; never share the token with anyone.'",
-    "} catch { Write-Host 'Could not read the token; check the local settings.json or use the page\'s manual entry.' -ForegroundColor Red }",
+    "  Write-Host '登录令牌已复制。回到网页，粘贴到登录令牌输入框即可。' -ForegroundColor Green",
+    "  Write-Host '完成后可以关闭此窗口，请勿向他人分享令牌。'",
+    "} catch { Write-Host '获取令牌失败，请检查本地 settings.json 或使用页面的手动入口。' -ForegroundColor Red }",
   ].join('\n')
   const launch = `Start-Process -FilePath ${quote(powershell)} -WindowStyle Normal -ArgumentList '-NoProfile -STA -NoExit -EncodedCommand ${encode(command)}' -ErrorAction Stop`
   await exec(powershell, ['-NoProfile', '-NonInteractive', '-EncodedCommand', encode(launch)], {
