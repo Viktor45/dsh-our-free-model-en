@@ -109,8 +109,8 @@ check('management rejects nesting cycles and refuses removal of a referenced gro
   const first = settings.combos[0]
   management.save({ combo: { name: 'Outer', models: [first.id, 'third'], strategy: 'fallback', stickyLimit: 1, enabled: true } })
   const outer = settings.combos[1]
-  assert.throws(() => management.save({ combo: { ...first, models: [outer.id] } }), /循环/)
-  assert.throws(() => management.remove({ id: first.id }), /仍在引用/)
+  assert.throws(() => management.save({ combo: { ...first, models: [outer.id] } }), /circular reference/i)
+  assert.throws(() => management.remove({ id: first.id }), /still references/i)
   management.remove({ id: outer.id })
   management.remove({ id: first.id })
   assert.deepEqual(settings.combos, [])

@@ -15,6 +15,15 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 const FILES = ['plan.json', 'console.ps1', 'supervisor.ps1', 'runner.mjs', 'go', 'ready.json', 'ready.tmp', 'error.json', 'control.sock']
 const MAX_PLAN = 1024 * 1024
 
+// The directory must be a real directory, and every component below the
+// storage root must be one as well.
+//
+// The walk starts at the storage root rather than at the filesystem root. On
+// macOS `/var` is a symlink to `/private/var` and `/tmp` points at
+// `/private/tmp`, so a root-anchored walk refuses every path under the
+// temporary directory — with it, every profile directory there. The ancestors
+// above the storage root belong to the operating system; what matters is that
+// no component below the root is a link.
 function safeDirectory(directory, create = false) {
   const absolute = path.resolve(directory)
   const root = path.parse(absolute).root
@@ -28,9 +37,29 @@ function safeDirectory(directory, create = false) {
       fs.mkdirSync(current, { mode: 0o700 })
       info = fs.lstatSync(current)
     }
-    if (!info.isDirectory() || info.isSymbolicLink()) throw fail('Terminal storage must not contain symlinks or junctions')
+    if (info.isSymbolicLink()) {
+      // A link that the operating system put there itself — `/var` →
+//      `/private/var` — is allowed; a link that redirects a directory
+      // somewhere else is not.
+      let real
+      try { real = fs.realpathSync(current) } catch { throw fail('Terminal storage must not contain symlinks or junctions') }
+      if (!samePlace(real, current)) throw fail('Terminal storage must not contain symlinks or junctions')
+      continue
+    }
+    if (!info.isDirectory()) throw fail('Terminal storage must not contain symlinks or junctions')
   }
   return true
+}
+
+// Two paths name the same place when the second one ends with the first one's
+// components: macOS resolves `/var/folders/x` to `/private/var/folders/x`, so
+// the resolved path has `/private` in front of the path that was asked for.
+function samePlace(resolved, asked) {
+  if (resolved === asked) return true
+  const tail = asked.slice(path.parse(asked).root.length).split(path.sep).filter(Boolean)
+  const head = resolved.slice(path.parse(resolved).root.length).split(path.sep).filter(Boolean)
+  if (tail.length > head.length) return false
+  return head.slice(head.length - tail.length).join(path.sep) === tail.join(path.sep)
 }
 
 function privateFile(file, contents) {

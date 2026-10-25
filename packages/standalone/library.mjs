@@ -157,11 +157,21 @@ function stat(file) {
 }
 
 // Check every ancestor too: checking just the final filename misses junctions and linked directories.
-function inspect(file, kind = 'file') {
+//
+// The walk is anchored at the managed root rather than at the filesystem root.
+// On macOS `/var` is a symlink to `/private/var` and `/tmp` points at
+// `/private/tmp`, so a root-anchored walk refuses every path under the
+// temporary directory — with it, every test that uses a temporary directory.
+// The ancestors above the managed root belong to the operating system: a
+// directory cannot be moved underneath them by a link inside the tree, so what
+// matters is that no component *below* the root is one.
+function inspect(file, kind = 'file', root = null) {
   const absolute = path.resolve(file)
-  const { root } = path.parse(absolute)
-  const parts = absolute.slice(root.length).split(path.sep).filter(Boolean)
-  let current = root
+  const base = root === null ? absolute : path.resolve(root)
+  const relative = path.relative(base, absolute)
+  if (relative.startsWith('..')) throw error('Path escapes managed storage', 409)
+  const parts = relative.split(path.sep).filter(Boolean)
+  let current = base
   for (const [index, part] of parts.entries()) {
     current = path.join(current, part)
     const info = stat(current)
@@ -175,58 +185,128 @@ function inspect(file, kind = 'file') {
   return stat(absolute)
 }
 
-function ensureDirectory(directory) {
-  if (inspect(directory, 'directory')) return
-  const parent = path.dirname(directory)
-  if (parent === directory) throw error('Invalid managed directory')
-  ensureDirectory(parent)
-  fs.mkdirSync(directory, { mode: 0o700 })
-  inspect(directory, 'directory')
+// Two paths name the same place when the second one ends with the first one's
+// components. macOS resolves `/var/folders/x` to `/private/var/folders/x`, so
+// the resolved path has `/private` in front of the path that was asked for —
+// the components after it are the same ones. A link that points somewhere else
+// entirely changes those components, and is refused.
+function resolvesToSamePlace(resolved, asked) {
+  if (resolved === asked) return true
+  const tail = asked.slice(path.parse(asked).root.length).split(path.sep).filter(Boolean)
+  const head = resolved.slice(path.parse(resolved).root.length).split(path.sep).filter(Boolean)
+  if (tail.length > head.length) return false
+  return head.slice(head.length - tail.length).join(path.sep) === tail.join(path.sep)
 }
 
-function read(file) {
-  const info = inspect(file)
+// The managed root must be a real directory, and the path leading to it must
+// not *substitute* a different tree. macOS prepends `/private` to `/var` and
+// `/tmp`, which is allowed: the resolved path still names the same directory,
+// component for component. A link that points the root somewhere else —
+// `clients` → another directory — is refused, because the caller asked for one
+// tree and would have written into another.
+//
+// The root's own spelling is kept for every later operation: the caller's
+// paths and the ones it compares against stay the ones it wrote down.
+function checkRoot(directory) {
+  const absolute = path.resolve(directory)
+  const info = stat(absolute)
+  if (info) {
+    if (info.isSymbolicLink()) throw error('Symlinks are not allowed in managed storage', 409)
+    if (!info.isDirectory()) throw error('Managed directory is not a directory', 409)
+    try {
+      const real = fs.realpathSync(absolute)
+      if (!resolvesToSamePlace(real, absolute)) throw error('Symlinks are not allowed in managed storage', 409)
+    } catch (failure) {
+      if (failure.statusCode) throw failure
+      throw error('Managed directory does not exist', 409)
+    }
+    return absolute
+  }
+  // The root does not exist yet. Check the nearest existing ancestor instead:
+  // it must be a real directory, and resolving it must not change the
+  // components that lead to the root.
+  let current = path.dirname(absolute)
+  while (true) {
+    const parent = path.dirname(current)
+    if (parent === current) break
+    const ancestor = stat(current)
+    if (ancestor) {
+      if (ancestor.isSymbolicLink()) throw error('Symlinks are not allowed in managed storage', 409)
+      if (!ancestor.isDirectory()) throw error('Managed directory is not a directory', 409)
+      try {
+        const real = fs.realpathSync(current)
+        if (!resolvesToSamePlace(real, current)) throw error('Symlinks are not allowed in managed storage', 409)
+      } catch (failure) {
+        if (failure.statusCode) throw failure
+        throw error('Managed directory does not exist', 409)
+      }
+      break
+    }
+    current = parent
+  }
+  return absolute
+}
+
+// Create the managed directory and everything below it, one component at a
+// time. The root itself is created here when it does not exist yet.
+function ensureDirectory(directory, root) {
+  if (inspect(directory, 'directory', root)) return
+  const parent = path.dirname(directory)
+  if (parent === directory) throw error('Invalid managed directory')
+  if (path.relative(root, parent).startsWith('..')) {
+    // The parent lies above the managed root: create the root itself.
+    fs.mkdirSync(root, { mode: 0o700, recursive: true })
+    inspect(root, 'directory', root)
+    return
+  }
+  ensureDirectory(parent, root)
+  fs.mkdirSync(directory, { mode: 0o700 })
+  inspect(directory, 'directory', root)
+}
+
+function read(file, root) {
+  const info = inspect(file, 'file', root)
   if (!info) return null
   if (info.size > MAX_STORE) throw error('Managed file is too large', 413)
   return fs.readFileSync(file, 'utf8')
 }
 
-function readJSON(file, fallback) {
-  const contents = read(file)
+function readJSON(file, fallback, root) {
+  const contents = read(file, root)
   if (contents === null) return fallback
   try { return JSON.parse(contents) } catch { throw error('Invalid JSON in managed storage', 409) }
 }
 
-function write(file, value) {
-  ensureDirectory(path.dirname(file))
-  inspect(file)
+function write(file, value, root) {
+  ensureDirectory(path.dirname(file), root)
+  inspect(file, 'file', root)
   privateWrite(file, value)
 }
 
 // Each replacement is atomic. Restore every attempted replacement, including a write that failed after rename.
-function transact(changes) {
+function transact(changes, root) {
   const snapshots = changes.map(([file, value]) => {
     if (value !== null && Buffer.byteLength(value) > MAX_STORE) throw error('Managed file is too large', 413)
-    return { file, value, previous: read(file) }
+    return { file, value, previous: read(file, root) }
   })
   const attempted = []
   try {
     for (const change of snapshots) {
       attempted.push(change)
       if (change.value === null) {
-        inspect(change.file)
+        inspect(change.file, 'file', root)
         if (change.previous !== null) fs.unlinkSync(change.file)
-      } else write(change.file, change.value)
+      } else write(change.file, change.value, root)
     }
   } catch (failure) {
     const failures = [failure]
     for (const change of attempted.reverse()) {
       try {
-        if (read(change.file) === change.previous) continue
+        if (read(change.file, root) === change.previous) continue
         if (change.previous === null) {
-          inspect(change.file)
+          inspect(change.file, 'file', root)
           fs.unlinkSync(change.file)
-        } else write(change.file, change.previous)
+        } else write(change.file, change.previous, root)
       } catch (rollbackFailure) { failures.push(rollbackFailure) }
     }
     if (failures.length > 1) throw Object.assign(new AggregateError(failures, 'Managed storage rollback failed'), { statusCode: 500 })
@@ -293,16 +373,16 @@ function validateManifest(value, clientId, format) {
  */
 export function createWorkbenchLibrary({ dataDir, workbench }) {
   if (typeof dataDir !== 'string' || !path.isAbsolute(dataDir) || !workbench || typeof workbench.clients !== 'function') throw error('Invalid library configuration')
-  const root = path.resolve(dataDir)
-  inspect(root, 'directory')
+  const root = checkRoot(dataDir)
+  inspect(root, 'directory', root)
   const storeFile = path.join(root, 'workbench-library.json')
-  let state = validateState(readJSON(storeFile, { version: 1, profiles: [], resources: [] }))
+  let state = validateState(readJSON(storeFile, { version: 1, profiles: [], resources: [] }, root))
 
   function commit(next) {
     validateState(next)
     const contents = json(next)
     if (Buffer.byteLength(contents) > MAX_STORE) throw error('Library storage limit exceeded', 413)
-    transact([[storeFile, contents]])
+    transact([[storeFile, contents]], root)
     state = next
   }
   function list() { return clone({ profiles: state.profiles, resources: state.resources }) }
@@ -371,7 +451,7 @@ export function createWorkbenchLibrary({ dataDir, workbench }) {
     const directory = path.join(root, 'clients', clientId)
     if (input.profileDir !== undefined && (typeof input.profileDir !== 'string' || !path.isAbsolute(input.profileDir) ||
       path.resolve(input.profileDir) !== directory)) throw error('Resources may only be materialized in the private managed client directory')
-    inspect(directory, 'directory')
+    inspect(directory, 'directory', root)
     const target = relative => path.join(directory, ...relative.split('/'))
     const previous = validateManifest(readJSON(target(MANIFEST), {
       version: 1, clientId, files: {}, mcp: {}, configCreated: false, hadMcpServers: false, contextBlock: '', contextCreated: false,
@@ -397,7 +477,7 @@ export function createWorkbenchLibrary({ dataDir, workbench }) {
     const changes = []
     for (const relative of new Set([...Object.keys(previous.files), ...desired.keys()])) {
       const file = target(relative)
-      const current = read(file)
+      const current = read(file, root)
       const owned = current !== null && digest(current) === previous.files[relative]
       if (desired.has(relative)) {
         if (current !== null && !owned) throw error('A resource would overwrite an unrelated or modified file', 409)
@@ -409,8 +489,8 @@ export function createWorkbenchLibrary({ dataDir, workbench }) {
     let hadMcpServers = previous.hadMcpServers
     if (format.config) {
       const file = target(format.config)
-      const raw = read(file)
-      const config = readJSON(file, {})
+      const raw = read(file, root)
+      const config = readJSON(file, {}, root)
       if (!record(config) || (config.mcpServers !== undefined && !record(config.mcpServers))) throw error('Invalid client JSON configuration', 409)
       if (!Object.keys(previous.mcp).length) {
         configCreated = raw === null
@@ -437,7 +517,7 @@ export function createWorkbenchLibrary({ dataDir, workbench }) {
       }
     }
     const contextFile = target(format.context)
-    const currentContext = read(contextFile)
+    const currentContext = read(contextFile, root)
     const contextCreated = previous.contextBlock ? previous.contextCreated : currentContext === null
     let baseContext = currentContext ?? ''
     if (previous.contextBlock) {
@@ -463,7 +543,7 @@ export function createWorkbenchLibrary({ dataDir, workbench }) {
       mcp, configCreated, hadMcpServers, contextBlock, contextCreated,
     }
     changes.push([target(MANIFEST), json(manifest)])
-    transact(changes)
+    transact(changes, root)
     return {
       ok: true, clientId, profileDir: directory,
       files: [...desired.keys(), ...(contextBlock ? [format.context] : []), ...(Object.keys(mcp).length ? [format.config] : [])].map(target),

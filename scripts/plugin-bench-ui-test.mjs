@@ -229,20 +229,20 @@ await check('empty or offscreen aquariums pause, filled visible aquariums resume
 
 await check('the disclaimer renders both excluded channels and acknowledges through the backend', () => {
   const app = boot({ fetchImpl: endpoint => endpoint === '/disclaimer'
-    ? { version: 1, title: '使用须知与免责声明', subtitle: '关于本插件未提供的渠道',
-      intro: '个人学习与技术研究项目', accept: '我已阅读并了解', reopen: '查看免责声明',
-      sections: [{ id: 'excluded', heading: '本插件不提供这些渠道', body: '不含 WorkBuddy 与华为云 Huawei Cloud MaaS' }],
+    ? { version: 1, title: 'Terms of use & disclaimer', subtitle: 'About the channels this plugin does not offer',
+      intro: 'A personal learning and technical research project', accept: 'I have read and understood', reopen: 'View the disclaimer',
+      sections: [{ id: 'excluded', heading: 'This plugin does not offer these three channels', body: 'It does not include WorkBuddy or Huawei Cloud MaaS' }],
       acknowledged: false }
     : {} })
   const tree = app.draw(app.api.Disclaimer, { t: app.t, copy: {
-    version: 1, title: '使用须知与免责声明', subtitle: '关于本插件未提供的渠道',
-    intro: '个人学习与技术研究项目', accept: '我已阅读并了解', reopen: '查看免责声明',
-    sections: [{ id: 'excluded', heading: '本插件不提供这些渠道', body: '不含 WorkBuddy 与华为云 Huawei Cloud MaaS' }],
+    version: 1, title: 'Terms of use & disclaimer', subtitle: 'About the channels this plugin does not offer',
+    intro: 'A personal learning and technical research project', accept: 'I have read and understood', reopen: 'View the disclaimer',
+    sections: [{ id: 'excluded', heading: 'This plugin does not offer these three channels', body: 'It does not include WorkBuddy or Huawei Cloud MaaS' }],
   }, onClose() {} })
   const text = flatten(tree).filter(node => typeof node === 'string').join(' ')
   assert.match(text, /WorkBuddy/, 'the excluded channel is named')
   assert.match(text, /Huawei Cloud/, 'the second excluded channel is named')
-  assert.match(text, /个人学习/, 'the project states its purpose')
+  assert.match(text, /personal learning/, 'the project states its purpose')
   assert.ok(flatten(tree).some(node => node?.props?.role === 'dialog'), 'it is a modal dialog')
   // The accept button writes the acknowledgement, then closes.
   let closed = false
