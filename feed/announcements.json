@@ -2,6 +2,18 @@
   "$schema": "./announcements.schema.md",
   "announcements": [
     {
+      "id": "2026-10-25-v2.7.1-fork-release",
+      "title": "v2.7.1：同步上游 2.7.x，全英文界面，并修复 macOS 上的存储检查",
+      "level": "update",
+      "pinned": false,
+      "createdAt": "2026-10-25T12:00:00Z",
+      "link": {
+        "url": "https://github.com/Viktor45/dsh-our-free-model-en/releases/tag/v2.7.1",
+        "label": "查看版本说明"
+      },
+      "html": "<p><b>2.7.1 把本 Fork 同步到了上游 2.7.x。</b>模型工作台、订阅车道、路由组、资源库、聚合渠道与新增的桌面管理页都已并入，上游新增的用户可见文案一并译为英文，代码注释、文档与样式保持原样。渠道排除策略与免责声明与上游一致：本插件不提供 WorkBuddy 国内版/国际版与华为云 Huawei Cloud MaaS。</p><p><b>同时修复了 macOS 上无法启动独立端的问题。</b>存储检查此前从文件系统根目录逐级校验，会撞上 macOS 自带的 <code>/var</code> → <code>/private/var</code> 链接，从而拒绝临时目录下的一切路径；现在检查锚定在被管理目录的根上，根以内的任何一级仍必须是真实目录，根自身若是把目录指向别处的链接依旧拒绝。</p>"
+    },
+    {
       "id": "2026-10-24-v2.6.0-fork-channel",
       "title": "v2.6.0：Fork 自有发布通道与全英文界面",
       "level": "update",
