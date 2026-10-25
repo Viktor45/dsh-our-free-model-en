@@ -14,8 +14,8 @@
     },
     {
       "path": "client.js",
-      "size": 562161,
-      "sha256": "d02a3180c5ed69314d1c616ba0df36cba49dff4b29ff9c3ed14efd782331a72f"
+      "size": 562568,
+      "sha256": "9e3dce15d4bd796f89c07a8b10807578c445aca2bec10f2bfd9c7895af5d9091"
     },
     {
       "path": "cordis.patch.yml",
@@ -94,8 +94,8 @@
     },
     {
       "path": "src/core/runtime.js",
-      "size": 20720,
-      "sha256": "39c682c47620ec2de074a9786dceaf11210a171761b3f12ee0fe9696e373bbf3"
+      "size": 21089,
+      "sha256": "5df66d27762c2b03429e41f388b061d12027d1ba68c27952747dbf6ceab95cbb"
     },
     {
       "path": "src/core/stats.js",
@@ -109,8 +109,8 @@
     },
     {
       "path": "src/disclaimer.js",
-      "size": 4069,
-      "sha256": "d15a828e4e0d29fbf82e3d309148bc7eee5e335abdf348727cd85be353d9f925"
+      "size": 4549,
+      "sha256": "01abd663fc533dc549b2b12bf2247e4e75cff20fe0e0ca8061170efdccbc87cd"
     },
     {
       "path": "src/eac-login.js",
@@ -144,8 +144,8 @@
     },
     {
       "path": "src/feed.js",
-      "size": 13366,
-      "sha256": "06cbe31d895d7f9dd6b39f9a4992b9d495ad50acd3fb772fec0799694d3c9519"
+      "size": 13352,
+      "sha256": "41a2f6e56d0d47c690c457548254deccf12e10f956a0321cdec053b0fa3eec97"
     },
     {
       "path": "src/forward.js",
@@ -253,6 +253,11 @@
       "sha256": "d6918993538bd1e35576594c1140bb41420e2499c19c96a8c4d9a04601efda02"
     },
     {
+      "path": "src/repo.js",
+      "size": 743,
+      "sha256": "a8b85b42ae5933cc3f28f3e11ce41f3402e82428911a403e46254ea4d948b572"
+    },
+    {
       "path": "src/route/classify.js",
       "size": 28738,
       "sha256": "9123be50f8284a9a8735abac7c0e541e726fdfdce1de9aab841e4e5bbe348e17"
@@ -264,13 +269,13 @@
     },
     {
       "path": "src/sponsor.js",
-      "size": 14680,
-      "sha256": "57037468b5ecfeff7bbeb9d802f0193d31ab8ba7b80582915bc4d7c4fa8d0266"
+      "size": 15277,
+      "sha256": "3e5cbd0f77ee0de7e1c18fbb3e2ec0013cd94061c9d1a08a9c478f63f3261d04"
     },
     {
       "path": "src/store.js",
-      "size": 24502,
-      "sha256": "a9c9e6bacae9d1d75947b01435c5b43204755b626831d948bafc085e3063d80d"
+      "size": 24516,
+      "sha256": "2775513beee01625caeaa374670f0f42c6b10cdeaf21fa263c3752330c155dff"
     },
     {
       "path": "src/stream.js",
@@ -404,8 +409,8 @@
     },
     {
       "path": "src/updater.js",
-      "size": 53141,
-      "sha256": "4795e94fba1bab868d68d8ee2180584e3fdefcc5b7eb8925a12295f04da95780"
+      "size": 53814,
+      "sha256": "bedfa6761c8453022c8fe6c946200411028eb4ed72658481216f4e92dc7cd71d"
     },
     {
       "path": "src/upstream.js",
